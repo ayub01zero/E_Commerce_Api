@@ -15,13 +15,13 @@ class CouponResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'Id' => (string) $this->id,
+            'Id' => (string)$this->id,
             'Type' => 'Coupon',
             'attributes' => [
-                'Name' => $this->coupon_name,
-                'Validity' => $this->coupon_validity,
-                'Discount' => $this->coupon_discount,
-                'Status' => $this->status,
+                'name' => $this->coupon_name,
+                'validity' => $this->coupon_validity,
+                'discount' => $this->coupon_discount,
+                'status' => $this->status,
             ],
         ];
     }

@@ -14,6 +14,9 @@ use App\Http\Resources\SliderResource;
 
 class SliderController extends Controller
 {
+
+
+   
     /**
      * Display a listing of the resource.
      */
@@ -26,28 +29,36 @@ class SliderController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(SliderRequest $request)
-    {
-        $validatedData = $request->validated();
-    
-        if($validatedData){
-           
-            $image = $request->file('img_url');
 
-            $make_name = hexdec(uniqid()).'.'.$image->getClientOriginalExtension();
-            Image::make($image)->resize(576,479)->save('upload/SliderImage/'.$make_name);
-            $uploadPath = 'upload/SliderImage/'.$make_name;
+public function store(SliderRequest $request)
+{
+    $validatedData = $request->validated();
 
-            $Slider = Slider::create([
+    if ($validatedData) {
+        $image = $request->file('img_url');
+
+        $make_name = hexdec(uniqid()) . '.' . $image->getClientOriginalExtension();
+        Image::make($image)->resize(576, 479)->save('upload/SliderImage/' . $make_name);
+        $uploadPath = 'upload/SliderImage/' . $make_name;
+
+        // Check if the product with the given ID exists
+        $product = Products::find($request->product_id);
+
+        if ($product) {
+            $slider = Slider::create([
                 'product_id' => $request->product_id,
                 'image' => $uploadPath
             ]);
 
-            return response()->json(['success' => 'Slider added successfully', 'Slider' => $Slider], 200);
-        }else{
-            return response()->json(['errors' => 'Validation failed'], 401);
+            return response()->json(['success' => 'Slider added successfully', 'Slider' => $slider], 200);
+        } else {
+            return response()->json(['errors' => 'Product does not exist'], 404);
         }
+    } else {
+        return response()->json(['errors' => 'Validation failed'], 401);
     }
+}
+
 
     /**
      * Display the specified resource.
@@ -81,14 +92,19 @@ class SliderController extends Controller
                 Image::make($image)->resize(576,479)->save('upload/SliderImage/'.$make_name);
                 $uploadPath = 'upload/SliderImage/'.$make_name;
 
+            // Check if the product with the given ID exists
+            $product = Products::find($request->product_id);
+
+            if ($product) {
                     $update = [
                     'product_id'=>$request->product_id,
                     'image'=>$uploadPath
                     ];
-
                     $slider->fill($update);
                     $slider->save();
-                    return response()->json(['success' => 'slider updated successfully','data'=>new SliderResource($slider)], 200);
+                }
+                  
+                return response()->json(['success' => 'slider updated successfully','data'=>new SliderResource($slider)], 200);
                 }else{
                  return response()->json(['errors' => 'Validation failed'], 401);
                 }

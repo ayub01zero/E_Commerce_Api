@@ -3,53 +3,65 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\LoginUser;
-use App\Http\Requests\ResetPass;
-use App\Http\Requests\StoreUser;
+use App\Http\Requests\{LoginUser,ResetPass,StoreUser};
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\UserDetails;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Password;
 use Str;
+use App\Jobs\SendWelcomeEmail; 
 use Validator;
+
 
 class AuthenticationController extends Controller
 {
     
-public function createUser(StoreUser $request): JsonResponse
-{
-    try {
-        $request->validated($request->safe()->only([
-            'name','email', 'password','phone','address'
-        ]));
+    public function createUser(StoreUser $request): JsonResponse
+    {
+        try {
+            $validatedData = $request->validated(); 
+            
             $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'phone' => $request->phone,
-                'address' => $request->address,
-                
+                'name' => $validatedData['name'],
+                'email' => $validatedData['email'],
+                'password' => Hash::make($validatedData['password']),
+                'phone' => $validatedData['phone'],
+                'address' => $validatedData['address'],
             ]);
 
+            $ipInformation = new UserDetails([
+                'user_id' => $user->id,
+                'ip' => $request->ipinfo->ip,
+                'city' => $request->ipinfo->city,
+                'region' => $request->ipinfo->region,
+                'location' => $request->ipinfo->loc,
+                'postal' => $request->ipinfo->postal,
+            ]);
+            
+            $ipInformation->save();
+            
+            dispatch(new SendWelcomeEmail($user))->delay(now()->addMinutes(1));
+    
             return response()->json([
                 'status' => true,
                 'message' => 'User Created Successfully',
                 'token' => $user->createToken('API TOKEN')->plainTextToken,
                 'user' => $user,
+           
+      
             ], 200);
-        
-
-    } catch (\Throwable $th) {
-        return response()->json([
-            'status' => false,
-            'message' => $th->getMessage(),
-        ], 500);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
     }
-}
 
 
 public function loginUser(LoginUser $request): JsonResponse
@@ -98,7 +110,6 @@ public function loginUser(LoginUser $request): JsonResponse
 
     public function resetPassword(ResetPass $request)
     {
-
         $request->validated();
         $response = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
@@ -118,21 +129,24 @@ public function loginUser(LoginUser $request): JsonResponse
 
 
 
-    public function logout(): JsonResponse
+    public function logout(Request $request, $userId): JsonResponse
     {
-        if (Auth::check()) {
-            Auth::user()->currentAccessToken()->delete();
-            return response()->json([
-                'status' => true,
-                'message' => 'User Logout Successfully',
-            ], 201);
-        } else {
-            return response()->json([
-                'status' => false,
-                'message' => 'User not authenticated',
-            ], 401);
+        if (!Auth::check()) {
+            return response()->json(['message' => 'User not authenticated'], 401);
         }
+    
+        $user = User::find($userId);
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+    
+        return $user->tokens()->delete()
+            ? response()->json(['message' => 'User logged out successfully'], 200)
+            : response()->json(['message' => 'Logout Failed'], 200);
     }
+    
+
+
     
 
 

@@ -6,7 +6,7 @@ use App\Events\OrderPlaced;
 use App\Mail\SendOrderUser;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
-use Mail;
+use Illuminate\Support\Facades\Mail;
 
 class SendOrderListener
 {

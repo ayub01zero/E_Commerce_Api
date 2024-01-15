@@ -38,30 +38,26 @@ public function userPasswordUpdate(UpdatePasswordRequest $request)
     }
 
 
+    
 
-
-
-    public function AdminRoleUpdate(AdminRoleUpdateRequest $request)
+    public function AdminRoleUpdate(Request $request, User $user)
     {
-        $validatedData = $request->validated();
+        $this->authorize('isAdmin', User::class);
     
-        $validRoles = ['user', 'admin'];
-    
-        if (!in_array($validatedData['new_role'], $validRoles)) {
-            return response()->json(['error' => 'Invalid role provided.'], 400);
+        if ($user->role === 'admin') {
+            return response()->json(['message' => 'Cannot change the role of an admin'], 403);
         }
     
-        $user = auth()->user();
-        $user->update(['role' => $validatedData['new_role']]);
+        $user->role = 'admin';
+        $user->save();
     
-        return response()->json([
-            'message' => 'Admin role updated successfully',
-            'user' => $user->fresh(), 
-        ]);
+        return response()->json(['message' => 'User role updated to admin']);
     }
+
     
     public function AllUser(request $request)
     {
+        $this->authorize('isAdmin', User::class);
         $users = User::OfRole($request->role)->get(); 
     
         return response()->json([

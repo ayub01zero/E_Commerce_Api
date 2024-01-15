@@ -30,6 +30,7 @@ class ProductRequest extends FormRequest
             'weight' => 'nullable|string|max:255',
             'selling_price' => 'required|string|max:255',
             'discount_price' => 'nullable|string|max:255',
+            'points' => 'nullable|integer|min:0',
             'short_des' => 'required|string',
             'long_des' => 'required|string',
             'show_slider' => 'nullable|integer',
@@ -38,7 +39,7 @@ class ProductRequest extends FormRequest
             'new_products' => 'nullable|integer',
             'discount_products' => 'nullable|integer',
             'status' => 'integer|in:0,1',
-            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', 
+            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:4000', 
         ];
     }
 }

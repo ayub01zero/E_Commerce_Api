@@ -39,7 +39,7 @@ class CouponController extends Controller
     
             return response()->json([
                 'message' => 'Coupon created successfully',
-                'coupon' => $coupon,
+                'coupon' => new CouponResource($coupon),
             ], 201);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Validation failed', 'errors' => $e->getMessage()], 422);
@@ -74,8 +74,8 @@ class CouponController extends Controller
             ]);
     
             return response()->json([
-                'coupon' => $coupon,
-                'message' => 'Coupon updated successfully',
+                'message' => 'Coupon update successfully',
+                'coupon' => new CouponResource($coupon),
             ], 200);
         } catch (\Exception $e) {
             return response()->json(['errors' => 'Coupon not found'], 404);

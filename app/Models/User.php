@@ -26,6 +26,7 @@ class User extends Authenticatable
         'address',
         'role',
     ];
+     protected $appends = ['Registered'];    
 
     /**
      * The attributes that should be hidden for serialization.
@@ -47,7 +48,6 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-
     public function scopeOfRole($query, $role)
     {
         if ($role) {
@@ -60,6 +60,13 @@ class User extends Authenticatable
     public function favorites()
     {
         return $this->hasMany(Favorite::class);
+    }
+
+
+    public function getRegisteredAttribute()
+    {
+        return $this->created_at->diffForHumans();
+        
     }
 
 }

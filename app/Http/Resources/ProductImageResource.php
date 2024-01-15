@@ -16,8 +16,11 @@ class ProductImageResource extends JsonResource
     {
         return [
             'Id' => (string)$this->id,
-            'Product' => $this->product_id,
-            'Path' => asset($this->url),
+            'Type' => 'ProductImages',
+            'attributes' => [
+                'Product' => $this->product_id,
+                'Path' => env('APP_URL') . $this->url,
+             ],
         ];
     }
 }

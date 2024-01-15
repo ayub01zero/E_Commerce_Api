@@ -18,8 +18,8 @@ class CategoryResource extends JsonResource
             'Id' => (string) $this->id,
             'Type' => 'Category',
             'attributes' => [
-                'Name' => $this->category_name,
-                'img_url' => $this->image,
+                'name' => $this->category_name,
+                'img_url' => env('APP_URL') . $this->image,
             ],
         ];
     }

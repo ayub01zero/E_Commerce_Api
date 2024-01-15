@@ -4,73 +4,63 @@ namespace App\Http\Controllers\Api\V1\Frontend;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Favorite;
-use App\Models\Products;
+use App\Models\{Favorite,Products};
 use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\FavoriteResource;
+
 
 class FavoriteController extends Controller
 {
 
-    public function addToFavorite(Request $request, $productId)
+    public function index()
     {
+        $user = Auth::user();
+        $favorites = $user->favorites()->with('product')->latest()->get();
+    
+        return FavoriteResource::collection($favorites);
+    }
+    
+    public function store(Request $request)
+    {
+        $productId = $request->input('productId');
         $user = Auth::user();
         $product = Products::find($productId);
     
         if (!$product) {
-            return response()->json([
-                "error" => "Product with ID $productId does not exist.",
-            ], 404);
+            return response()->json(["error" => "Product not found."], 404);
         }
     
         $isAlreadyFavorite = $user->favorites()->where('product_id', $productId)->exists();
-
+    
         if ($isAlreadyFavorite) {
-            return response()->json([
-                "error" => "Product with ID $productId is already in favorites.",
-            ], 400);
+            return response()->json(["error" => "Product already in favorites."], 400);
         }
     
-        $favoriteItem = $user->favorites()->create([
-            'product_id' => $productId,
-        ]);
+        $favoriteItem = $user->favorites()->create(['product_id' => $productId]);
     
         return response()->json([
-           "message" => "Product added to favorites successfully",
-           "Favorite" => $favoriteItem,
+            "message" => "Product added to favorites",
+            "favorite" => new FavoriteResource($favoriteItem)
         ], 201);
     }
     
-
-    
-    
-    public function removeFromFavorite($id)
-{
-    $favoriteItem = Favorite::find($id);
-
-    if (!$favoriteItem) {
-        return response()->json([
-            "error" => "Favorite with ID $id does not exist.",
-        ], 404);
-    }
-
-    $favoriteItem->delete();
-
-    return response()->json([
-        "message" => 'Item removed from Favorite'
-    ], 200);
-}
-
-  
-
-        
-
-
-    public function getFavorite()
+    public function destroy(string $id)
     {
         $user = Auth::user();
-        $Favorite = $user->favorites()->with('product')->get();
-
-        return response()->json(["Favorite" => $Favorite],200);
+        $favoriteItem = Favorite::find($id);
+    
+        if (!$favoriteItem) {
+            return response()->json(["error" => "Favorite not found."], 404);
+        }
+    
+        if ($favoriteItem->user_id !== $user->id) {
+            return response()->json(["error" => "Unauthorized to remove this favorite item."], 403);
+        }
+    
+        $favoriteItem->delete();
+    
+        return response()->json(["message" => "Item removed from favorites"], 200);
     }
-
+    
+    
 }

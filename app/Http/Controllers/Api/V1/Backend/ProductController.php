@@ -10,6 +10,8 @@ use App\Models\Products;
 use App\Models\ProductImage;
 use Carbon\Carbon;
 use Intervention\Image\Facades\Image;
+use Spatie\Ray\Ray;
+use Cache;
 
 class ProductController extends Controller
 {
@@ -18,8 +20,9 @@ class ProductController extends Controller
      */
    public function index()
 {
-    $products = Products::with('images')->get();
-    return ProductResource::collection($products);
+    return ProductResource::collection(cache::remember('products', 60*60*24 , function(){
+        return Products::with('images')->get();
+    }));
 }
 
 
@@ -29,6 +32,7 @@ class ProductController extends Controller
     public function store(ProductRequest $request)
 {
 
+    Cache::forget('products');
     $validatedData = $request->validated();
 
     if ($validatedData) {
@@ -41,6 +45,7 @@ class ProductController extends Controller
             'weight' => $request->product_weight,
             'selling_price' => $request->selling_price,
             'discount_price' => $request->discount_price,
+            'points' => $request->points,
             'short_des' => $request->short_des,
             'long_des' => $request->long_des,
             'show_slider' => $request->show_slider,
@@ -109,6 +114,7 @@ class ProductController extends Controller
             'weight' => $request->product_weight,
             'selling_price' => $request->selling_price,
             'discount_price' => $request->discount_price,
+            'points' => $request->points,
             'short_des' => $request->short_des,
             'long_des' => $request->long_des,
             'show_slider' => $request->show_slider,

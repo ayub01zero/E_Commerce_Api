@@ -16,8 +16,11 @@ class SliderResource extends JsonResource
     {
         return [
             'Id' => (string)$this->id,
-            'Product_id' => $this->product_id,
-            'img_url' => asset($this->image),
+            'Type' => 'Sliders',
+            'attributes' => [
+                'Product_id' => $this->product_id,
+                'img_url' => env('APP_URL') . $this->image,
+            ],
         ];
     }
 }
