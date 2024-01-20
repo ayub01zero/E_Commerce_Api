@@ -45,7 +45,7 @@ class AuthenticationController extends Controller
             
             $ipInformation->save();
             
-            dispatch(new SendWelcomeEmail($user))->delay(now()->addMinutes(1));
+            dispatch((new SendWelcomeEmail($user))->delay(now()->addMinutes(1)));
     
             return response()->json([
                 'status' => true,

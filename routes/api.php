@@ -9,10 +9,12 @@ Backend\ProductController,
 Backend\CouponController,
 Backend\SliderController,
 Backend\UserController,
+Backend\OrderProcessController,
 Frontend\HomeController,
 Frontend\FavoriteController,
 Frontend\CheckoutController,
 Frontend\ReviewController,
+Frontend\OrdersController,
 };
 
 // /
@@ -52,11 +54,18 @@ Route::group(['middleware' => ['auth:sanctum','json.header']], function () {
 Route::apiResource('/reviews', ReviewController::class)->only(['index', 'show','store']);
 //FavoriteAPI Routes  
 Route::apiResource('/favorite', FavoriteController::class)->only(['index', 'destroy','store']);
+//Order process 
+Route::controller(OrderProcessController::class)->group(function(){
+    Route::post('/order/status/{order}' , 'StatusOrderProcess');
+    Route::get('/get/all/order' , 'GetAllOrders');
+});
+
 //checkout and get order Routes
 Route::controller(CheckoutController::class)->group(function(){
     Route::post('/checkout/order' , 'checkoutOrders');
     Route::post('/order/remove/{orderId}' , 'declineOrder');
     Route::get('/get/order' , 'viewPastOrders');
+
 });
 //logout Routes
 Route::get('/logout/{id}', [AuthenticationController::class, 'logout']);
@@ -65,11 +74,8 @@ Route::get('/logout/{id}', [AuthenticationController::class, 'logout']);
     Route::post('/Update/user' , 'UserProfileUpdate');
     Route::post('/Update/password' , 'userPasswordUpdate');
     Route::get('/Update/role/{user}' , 'AdminRoleUpdate');
-    Route::get('/all/users' , 'AllUser');
+    Route::get('/all/users' , 'index');
 });
 });
-
-
-
 
 

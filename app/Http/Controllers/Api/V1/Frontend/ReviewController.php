@@ -20,8 +20,7 @@ class ReviewController extends Controller
 
     public function index()
     {
-      
-    $reviews = Review::latest()->get();
+        $reviews = Review::latest()->get();
         return ReviewResource::collection($reviews);
     }
 

@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('order_year');
             $table->string('return_date')->nullable();
             $table->integer('return_order')->default(0);
-            $table->string('status'); 
+            $table->enum('status', ['pending', 'delivered', 'confirmed'])->default('pending');
             $table->foreign('user_id')
                     ->references('id')->on('users')
                     ->onDelete('cascade');

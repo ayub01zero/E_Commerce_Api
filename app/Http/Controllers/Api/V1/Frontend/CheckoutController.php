@@ -9,11 +9,12 @@ use App\Models\User;
 use Carbon\Carbon;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Events\OrderPlaced;
 use App\Events\OrderNotifications;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Products;
 use App\Notifications\AdminPushNotification;
+use App\Jobs\SendOrderPlacedEmail;
+use App\Http\Resources\OrderResource;
 
 
 class CheckoutController extends Controller
@@ -39,8 +40,8 @@ class CheckoutController extends Controller
             $this->saveOrderItems($order, $validatedData['cartData']);
     
             $message = "New order added by {$user->name}";
-            event(new OrderPlaced($order->user->email));
             event(new OrderNotifications($message));
+            SendOrderPlacedEmail::dispatch($order, $user);
           
     
             return response()->json(['message' => 'Order placed successfully'], 200);
@@ -121,15 +122,15 @@ class CheckoutController extends Controller
     }
 
     $orders = Order::where('user_id', $user->id)
-                   ->with('orderItems')
-                   ->orderBy('created_at', 'desc')
+                   ->with('orderItems','user')
+                   ->latest()
                    ->get();
 
     if ($orders->isEmpty()) {
         return response()->json(['message' => 'No orders found'], 404);
     }
 
-    return response()->json(['orders' => $orders], 200);
+    return OrderResource::collection($orders);
 }
 
 public function declineOrder($orderId)
@@ -157,9 +158,6 @@ public function declineOrder($orderId)
         return response()->json(['error' => 'Failed to decline order: ' . $e->getMessage()], 500);
     }
 }
-
-
-
 
 }
 

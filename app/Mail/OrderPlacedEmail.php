@@ -8,17 +8,17 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Models\Order;
 
-class SendOrderUser extends Mailable
+class OrderPlacedEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    /**
-     * Create a new message instance.
-     */
-    public function __construct()
+    public $order;
+
+    public function __construct(Order $order)
     {
-        //
+        $this->order = $order;
     }
 
     /**
@@ -27,7 +27,7 @@ class SendOrderUser extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Send Order User',
+            subject: 'orderPlaced',
         );
     }
 
@@ -38,6 +38,13 @@ class SendOrderUser extends Mailable
     {
         return new Content(
             view: 'Mail.OrderPlaced',
+            with: [
+                'name' => $this->order->name,
+                'Amount' => $this->order->amount,
+                'InvoiceNum' => $this->order->invoice_no,
+                'year' => $this->order->order_date,
+                'companyName' => 'EDUKAN'
+            ],
         );
     }
 

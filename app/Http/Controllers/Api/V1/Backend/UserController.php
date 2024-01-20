@@ -10,7 +10,8 @@ use App\Http\Requests\UpdatePasswordRequest;
 use App\Http\Requests\AdminRoleUpdateRequest;
 use Validator;
 use Illuminate\Support\Facades\Hash;
-use Auth;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\UserResource;
 
 class UserController extends Controller
 {
@@ -54,16 +55,13 @@ public function userPasswordUpdate(UpdatePasswordRequest $request)
         return response()->json(['message' => 'User role updated to admin']);
     }
 
-    
-    public function AllUser(request $request)
+
+    public function index()
     {
         $this->authorize('isAdmin', User::class);
-        $users = User::OfRole($request->role)->get(); 
-    
-        return response()->json([
-            'message' => 'All users and admin',
-            'users' => $users,
-        ]);
+        // $users = User::OfRole($request->role)->get(); 
+        $users = User::all(); // Retrieve all users
+        return UserResource::collection($users);
     }
     
 

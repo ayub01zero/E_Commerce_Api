@@ -2,8 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Events\OrderPlaced;
-use App\Mail\SendOrderUser;
+
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Mail;
@@ -21,8 +20,8 @@ class SendOrderListener
     /**
      * Handle the event.
      */
-    public function handle(OrderPlaced $event): void
+    public function handle( $event): void
     {
-        Mail::to($event->email)->send(new SendOrderUser());
+        // Mail::to($event->email)->send(new SendOrderUser());
     }
 }

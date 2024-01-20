@@ -15,6 +15,10 @@ class Kernel extends ConsoleKernel
         // $schedule->command('hello:world')
         // ->everyMinute()
         // ->timezone('Asia/Baghdad');
+        // php artisan orders:delete-returned
+        //php artisan reviews:delete-old
+        $schedule->command('orders:delete-returned')->daily()->timezone('Asia/Baghdad');
+        $schedule->command('reviews:delete-old')->daily()->timezone('Asia/Baghdad');
 
     }
 

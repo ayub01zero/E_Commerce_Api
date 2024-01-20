@@ -29,7 +29,7 @@ class WelcomeEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Welcome Email',
+            subject: 'Welcome Mail',
         );
     }
 
@@ -40,6 +40,13 @@ class WelcomeEmail extends Mailable
     {
         return new Content(
             view: 'Mail.WelcomeUser',
+            with: [
+                'name' => $this->user->name,
+                'applicationName' => 'edukan Web Application',
+                'teamName' => 'Ayo',
+                'year' => now()->year,
+                'companyName' => 'EDUKAN'
+            ],
         );
     }
 
