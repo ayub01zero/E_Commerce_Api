@@ -85,6 +85,17 @@ return [
 
     'locale' => 'en',
 
+    
+    // ...
+
+    'available_locales' => [
+        'English' => 'en',
+        'Arabic' => 'ar',
+        'Kurdish' => 'ku', // Add this line
+    ],
+
+    // ...
+
     /*
     |--------------------------------------------------------------------------
     | Application Fallback Locale
