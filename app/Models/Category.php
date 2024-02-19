@@ -13,4 +13,14 @@ class Category extends Model
         'created_at',
         'updated_at',
     ];
+
+    public function scopeOfName($query, $name)
+    {
+        if ($name) {
+            return $query->where('category_name', 'LIKE', "%{$name}%");
+        } else {
+            return $query;
+        }
+      }
+
 }

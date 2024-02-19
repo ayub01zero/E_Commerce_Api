@@ -11,21 +11,31 @@ use App\Http\Resources\ProductResource;
 
 class HomeController extends Controller
 {
-    public function Home(request $request){
+   
+    public function HomeProduct(request $request)
+    {
         $products = Products::OfCategory($request->category_id)
-        ->OfSearch($request->search)
-        ->OfPrice($request->price)
-        ->with('images')->get();
-    
-        $categories = CategoryResource::collection(Category::all());
-    
-        return response()->json([
-            'status' => true,
-            'Category' => $categories,
-            'Products' => $products,
-        ], 200);
+            ->OfSearch($request->search)
+            ->OfPrice($request->price)
+            ->get();
+        return ProductResource::collection($products);
+    }
+
+    public function HomeCategory(request $request)
+    {
+        $categories = Category::ofName($request->category_name)->get();
+        return CategoryResource::collection($categories);
     }
     
+
+    public function getAllPC()
+    {
+        return response()->json([
+            "status" => true,
+            "Categories" => CategoryResource::collection(Category::all()),
+            "Products" => ProductResource::collection(Products::with("images")->get()),
+        ], 200);
+    }
 
 
 }

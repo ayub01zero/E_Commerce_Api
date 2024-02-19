@@ -20,4 +20,7 @@ class ProductImage extends Model
         'updated_at',
     ];
 
+
+    
+
 }

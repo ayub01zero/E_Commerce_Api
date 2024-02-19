@@ -23,22 +23,21 @@ class Products extends Model
     ];
 
 
-    public function scopeOfCategory($query, $category_id)
+    public function scopeOfCategory($query, $categoryId)
     {
-        if ($category_id) {
-            return $query->where('category_id', $category_id);
-        } else {
-            return $query;
+        if (!empty($categoryId)) {
+            return $query->where('category_id', $categoryId);
         }
+        return $query;
     }
 
-    public function scopeOfSearch($query, $search)
+    public function scopeOfSearch($query, $searchTerm)
     {
-        if ($search) {
-            return $query->where('Product_name', 'LIKE', '%' . $search . '%')->orWhere('long_des', 'LIKE', '%' . $search . '%');
-        } else {
-            return $query;
+        if (!empty($searchTerm)) {
+            return $query->where('product_name', 'LIKE', "%{$searchTerm}%")
+                         ->orWhere('short_des', 'LIKE', "%{$searchTerm}%");
         }
+        return $query;
     }
     
     public function scopeOfPrice($query, $price)
@@ -49,4 +48,6 @@ class Products extends Model
             return $query;
         }
     }
+
+
 }

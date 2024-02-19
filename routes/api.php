@@ -31,7 +31,10 @@ Route::prefix('/Auth')->controller(AuthenticationController::class)->group(funct
     Route::post('/reset' , 'resetPassword')->name('password.reset');
 });
 // Get Products and categories api
-Route::get('/home/page', [HomeController::class, 'Home']);
+
+Route::get('/home/page', [HomeController::class, 'getAllPC']);
+Route::get('/home/products', [HomeController::class, 'HomeProduct']);
+Route::get('/home/categories', [HomeController::class, 'HomeCategory']);
 });
 
 //Backend Routes
