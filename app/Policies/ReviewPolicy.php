@@ -13,8 +13,7 @@ class ReviewPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->role == 'admin';
-        
+       return $user->role == 'admin'; 
     }
 
     /**
@@ -22,7 +21,7 @@ class ReviewPolicy
      */
     public function view(User $user, Review $review): bool
     {
-         return $user->role == 'admin' || $user->id === $review->user_id;
+       return $user->role == 'admin' || $user->id === $review->user_id;
     }
 
     /**
@@ -30,7 +29,7 @@ class ReviewPolicy
      */
     public function create(User $user): bool
     {
-        return $user->role == 'user';
+       return $user->role == 'user';
     }
 
     // /**

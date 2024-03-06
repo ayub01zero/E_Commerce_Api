@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Password;
 use Str;
 use App\Jobs\SendWelcomeEmail; 
 use Validator;
+use App\Helper\helperfunctions;
+
 
 
 class AuthenticationController extends Controller
@@ -34,17 +36,8 @@ class AuthenticationController extends Controller
                 'address' => $validatedData['address'],
             ]);
 
-            $ipInformation = new UserDetails([
-                'user_id' => $user->id,
-                'ip' => $request->ipinfo->ip,
-                'city' => $request->ipinfo->city,
-                'region' => $request->ipinfo->region,
-                'location' => $request->ipinfo->loc,
-                'postal' => $request->ipinfo->postal,
-            ]);
-            
-            $ipInformation->save();
-            
+            // fetch the user ip and address and save it to the database
+            // helperfunctions::saveIPInformation($request);
             dispatch((new SendWelcomeEmail($user))->delay(now()->addMinutes(1)));
     
             return response()->json([
@@ -82,6 +75,7 @@ public function loginUser(LoginUser $request): JsonResponse
                     'status' => true,
                     'message' => 'User Logged In Successfully',
                     'token' => $user->createToken('API TOKEN')->plainTextToken,
+                    'user' => $user,
                 ], 200);
 
             

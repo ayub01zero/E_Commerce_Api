@@ -31,7 +31,6 @@ Route::prefix('/Auth')->controller(AuthenticationController::class)->group(funct
     Route::post('/reset' , 'resetPassword')->name('password.reset');
 });
 // Get Products and categories api
-
 Route::get('/home/page', [HomeController::class, 'getAllPC']);
 Route::get('/home/products', [HomeController::class, 'HomeProduct']);
 Route::get('/home/categories', [HomeController::class, 'HomeCategory']);
@@ -49,6 +48,11 @@ Route::prefix('/v1')->group(function(){
         Route::post('/slider/update/{id}', [SliderController::class, 'update']);
         Route::post('/Category/update/{id}', [CategoryController::class, 'update']);
 });
+    //Order process
+    Route::controller(OrderProcessController::class)->group(function(){
+       Route::post('/order/status/{order}' , 'StatusOrderProcess');
+       Route::get('/get/all/order' , 'GetAllOrders');
+    });
 });
 
 //Frontend Routes
@@ -57,19 +61,13 @@ Route::group(['middleware' => ['auth:sanctum','json.header']], function () {
 Route::apiResource('/reviews', ReviewController::class)->only(['index', 'show','store']);
 //FavoriteAPI Routes
 Route::apiResource('/favorite', FavoriteController::class)->only(['index', 'destroy','store']);
-//Order process
-Route::controller(OrderProcessController::class)->group(function(){
-    Route::post('/order/status/{order}' , 'StatusOrderProcess');
-    Route::get('/get/all/order' , 'GetAllOrders');
-});
+
 
 //checkout and get order Routes
 Route::controller(CheckoutController::class)->group(function(){
     Route::post('/checkout/order' , 'checkoutOrders');
     Route::post('/order/remove/{orderId}' , 'declineOrder');
     Route::get('/get/order' , 'viewPastOrders');
-
-
 });
 //logout Routes
 Route::get('/logout/{id}', [AuthenticationController::class, 'logout']);

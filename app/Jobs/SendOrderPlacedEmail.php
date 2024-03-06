@@ -8,9 +8,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Mail;
 use App\Mail\OrderPlacedEmail;
 use App\Models\Order;
-use Illuminate\Support\Facades\Mail;
 
 class SendOrderPlacedEmail implements ShouldQueue
 {

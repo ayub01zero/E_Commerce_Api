@@ -12,13 +12,12 @@ class OrderProcessController extends Controller
 {
     
 public function GetAllOrders(Request $request) {
-
     $orders = Order::query()
     ->status($request->status)
     ->userId($request->user_id)
+    ->with('user','orderItems')
     ->get();
     return OrderResource::collection($orders);
-
 }
 
 public function statusOrderProcess($orderId)
@@ -27,7 +26,6 @@ public function statusOrderProcess($orderId)
 
     if (!$order) {
         return response()->json(['message' => 'Order Not Found'], Response::HTTP_NOT_FOUND);
-
     }
 
     $statusTransitions = [
