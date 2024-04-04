@@ -50,4 +50,18 @@ class Products extends Model
     }
 
 
+public static function filterProducts(array $conditions)
+{
+    $query = self::query();
+
+    foreach ($conditions as $field => $value) {
+        if (in_array($field, ['week_deals', 'special_offer', 'discount_products']) && $value === true) {
+            $query->where($field, $value);
+        }
+    }
+
+    return $query;
+}
+
+
 }

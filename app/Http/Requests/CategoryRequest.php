@@ -25,12 +25,12 @@ class CategoryRequest extends FormRequest
         if ($method == 'PUT') {
             return [
                 'category_name' => ['required','max:255'],
-                'img_url' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', 
+                'img_url' => 'required|image|mimes:jpeg,png,jpg,gif', 
             ];
         }else{
              return [
             'category_name' => ['sometimes','required','max:255'],
-            'img_url' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', 
+            'img_url' => 'required|image|mimes:jpeg,png,jpg,gif', 
         ];
         }
        

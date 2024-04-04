@@ -22,18 +22,22 @@ Frontend\OrdersController,
 // | API Routes
 // |--------------------------------------------------------------------------
 
+
 //Auth Routes
 Route::middleware(['json.header'])->group(function () {
 Route::prefix('/Auth')->controller(AuthenticationController::class)->group(function(){
     Route::post('/login' , 'loginUser');
     Route::post('/register' , 'createUser');
     Route::post('/forgot' , 'forgotPassword');
-    Route::post('/reset' , 'resetPassword')->name('password.reset');
+    Route::post('/reset' , 'resetPassword');
+    Route::post('/user/ban' , 'banUser');
+    Route::post('/user/unban' , 'unbanUser');
 });
 // Get Products and categories api
 Route::get('/home/page', [HomeController::class, 'getAllPC']);
 Route::get('/home/products', [HomeController::class, 'HomeProduct']);
 Route::get('/home/categories', [HomeController::class, 'HomeCategory']);
+Route::get('/home/filter', [HomeController::class, 'productFilter']);
 });
 
 //Backend Routes
@@ -79,5 +83,6 @@ Route::get('/logout/{id}', [AuthenticationController::class, 'logout']);
     Route::get('/all/users' , 'index');
 });
 });
+
 
 

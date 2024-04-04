@@ -181,6 +181,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         Spatie\LaravelRay\RayServiceProvider::class,
+        Cog\Laravel\Ban\Providers\BanServiceProvider::class,
     ])->toArray(),
 
     /*
