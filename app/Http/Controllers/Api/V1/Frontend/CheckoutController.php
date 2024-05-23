@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Frontend;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\V1\ApiController;
 use App\Http\Requests\CheckoutRequest;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -15,9 +15,9 @@ use App\Models\Products;
 use App\Notifications\AdminPushNotification;
 use App\Jobs\SendOrderPlacedEmail;
 use App\Http\Resources\OrderResource;
-
-
-class CheckoutController extends Controller
+use 
+App\Http\Filters\V1\OrderFilter;
+class CheckoutController extends ApiController
 {        
 
     public function checkoutOrders(CheckoutRequest $request)
@@ -114,24 +114,35 @@ class CheckoutController extends Controller
 
 
 
-    public function viewPastOrders()
-{
-    $user = $this->getUser();
-    if (!$user) {
-        return $this->userNotFoundResponse();
-    }
+    public function viewPastOrders(OrderFilter $filters)
+    {
+        $user = $this->getUser();
+        
+        if (!$user) {
+            return $this->userNotFoundResponse();
+        }
+    
+        $query = Order::where('user_id', $user->id)
+                      ->with('orderItems')
+                      ->latest();
+    
+        if ($this->include('user')) {
+            $orders = $query->get()->load('user');
+        } else {
+            $orders = $query->get();
+        }
+    
+        if ($orders->isEmpty()) {
+            return response()->json(['message' => 'No orders found'], 404);
+        }
+    
+        $filteredQuery = $filters->apply($query);
 
-    $orders = Order::where('user_id', $user->id)
-                   ->with('orderItems','user')
-                   ->latest()
-                   ->get();
-
-    if ($orders->isEmpty()) {
-        return response()->json(['message' => 'No orders found'], 404);
-    }
+         $orders = $filteredQuery->get();
 
     return OrderResource::collection($orders);
-}
+    }
+    
 
 public function declineOrder($orderId)
 {

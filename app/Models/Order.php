@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Http\Filters\V1\QueryFilter;
 
 class Order extends Model
 {
@@ -19,6 +21,12 @@ class Order extends Model
 {
     return $this->belongsTo(User::class);
 }
+
+// public function scopeFilter(Builder $query, QueryFilter $filters)
+// {
+//     return $filters->apply($query);
+// }
+
 
   public function scopeStatus($query, $status)
     {

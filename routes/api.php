@@ -54,7 +54,7 @@ Route::prefix('/v1')->group(function(){
 });
     //Order process
     Route::controller(OrderProcessController::class)->group(function(){
-       Route::post('/order/status/{order}' , 'StatusOrderProcess');
+       Route::post('/order/status/{order}' , 'StatusOrderProcess')->name('orders.status');
        Route::get('/get/all/order' , 'GetAllOrders');
     });
 });
@@ -71,7 +71,7 @@ Route::apiResource('/favorite', FavoriteController::class)->only(['index', 'dest
 Route::controller(CheckoutController::class)->group(function(){
     Route::post('/checkout/order' , 'checkoutOrders');
     Route::post('/order/remove/{orderId}' , 'declineOrder');
-    Route::get('/get/order' , 'viewPastOrders');
+    Route::get('/get/order' , 'viewPastOrders')->name('orders.index');
 });
 //logout Routes
 Route::get('/logout/{id}', [AuthenticationController::class, 'logout']);
