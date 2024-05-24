@@ -8,6 +8,8 @@ use App\Http\Filters\V1\QueryFilter;
 class OrderFilter extends QueryFilter
 {
 
+    protected $sortable = ['id', 'created_at', ,'amount'];
+
     public function include(string $value)
     {
         return $this->builder->with($value);
@@ -17,6 +19,9 @@ class OrderFilter extends QueryFilter
     {
         return $this->builder->whereIn('status',explode(',', $status));
     }
+
+
+    
 
     // public function title(string $title)
     // {

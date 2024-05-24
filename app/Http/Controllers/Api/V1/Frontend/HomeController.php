@@ -8,9 +8,12 @@ use App\Models\Category;
 use App\Models\Products;
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\ProductResource;
+use App\traits\apiResponse;
 
 class HomeController extends Controller
 {
+    use apiResponse;
+
     public function productFilter(Request $request)
     {
         $productsQuery = Products::query();
@@ -37,7 +40,8 @@ class HomeController extends Controller
         $filteredProducts = $productsQuery->get();
         $productResources = ProductResource::collection($filteredProducts);
     
-        return response()->json($productResources);
+        return $this->successResponse($productResources);
+     
     }
     
    
@@ -47,13 +51,14 @@ class HomeController extends Controller
             ->OfSearch($request->search)
             ->OfPrice($request->price)
             ->get();
-        return ProductResource::collection($products);
+            return $this->successResponse(ProductResource::collection($products));
     }
 
     public function HomeCategory(request $request)
     {
         $categories = Category::ofName($request->category_name)->get();
-        return CategoryResource::collection($categories);
+        return $this->successResponse(CategoryResource::collection($categories));
+      
     }
     
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Frontend;
 
 use App\Http\Controllers\Api\V1\ApiController;
 use App\Http\Requests\CheckoutRequest;
+use App\traits\apiResponse;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Carbon\Carbon;
@@ -15,11 +16,12 @@ use App\Models\Products;
 use App\Notifications\AdminPushNotification;
 use App\Jobs\SendOrderPlacedEmail;
 use App\Http\Resources\OrderResource;
-use 
-App\Http\Filters\V1\OrderFilter;
+use App\Http\Filters\V1\OrderFilter;
+
 class CheckoutController extends ApiController
 {        
 
+    use apiResponse;
     public function checkoutOrders(CheckoutRequest $request)
     {
         $validatedData = $request->validated();
@@ -43,10 +45,10 @@ class CheckoutController extends ApiController
             event(new OrderNotifications($message));
             SendOrderPlacedEmail::dispatch($order, $user);
           
-    
-            return response()->json(['message' => 'Order placed successfully'], 200);
+            return $this->successResponse($order, 'Order placed successfully', 200);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to place order: ' . $e->getMessage()], 500);
+            return $this->errorResponse('Failed to place order: ' . $e->getMessage(), 500);
+
         }
     }
     
@@ -57,7 +59,8 @@ class CheckoutController extends ApiController
     
     private function userNotFoundResponse()
     {
-        return response()->json(['error' => 'User not found'], 404);
+        return $this->errorResponse('User not found', 404);
+
     }
     
     private function calculateTotalPoints($cartData)
@@ -126,22 +129,23 @@ class CheckoutController extends ApiController
                       ->with('orderItems')
                       ->latest();
     
+        // Apply the filters to the query
+        $filteredQuery = $filters->apply($query);
+    
+        // Conditionally include the user relationship
         if ($this->include('user')) {
-            $orders = $query->get()->load('user');
+            $orders = $filteredQuery->get()->load('user');
         } else {
-            $orders = $query->get();
+            $orders = $filteredQuery->get();
         }
     
         if ($orders->isEmpty()) {
-            return response()->json(['message' => 'No orders found'], 404);
+            return $this->errorResponse('No orders found');
         }
     
-        $filteredQuery = $filters->apply($query);
-
-         $orders = $filteredQuery->get();
-
-    return OrderResource::collection($orders);
+        return OrderResource::collection($orders);
     }
+    
     
 
 public function declineOrder($orderId)
@@ -154,9 +158,10 @@ public function declineOrder($orderId)
     $order = Order::where(['id' => $orderId, 'user_id' => $user->id])->first();
 
     if (!$order) {
-    return response()->json(['message' => 'Order not found'], 404);}
+        
+ return $this->errorResponse('Order not found', 404);}
     if ($order->status !== 'pending') {
-    return response()->json(['message' => 'Order cannot be declined'], 400);}
+        return $this->errorResponse('Order cannot be declined', 400);}
     try {
         $order->update([
             'return_order' => 1,
@@ -164,9 +169,9 @@ public function declineOrder($orderId)
             'status' => 'declined' 
         ]);
 
-        return response()->json(['message' => 'Order declined successfully'], 200);
+        return $this->successResponse(null,'Order declined successfully', 200);
     } catch (\Exception $e) {
-        return response()->json(['error' => 'Failed to decline order: ' . $e->getMessage()], 500);
+        return $this->errorResponse('Failed to decline order: ' . $e->getMessage(), 500);
     }
 }
 

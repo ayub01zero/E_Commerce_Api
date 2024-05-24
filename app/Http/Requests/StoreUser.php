@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use App\Rules\EmailDomainRule;
 
 class StoreUser extends FormRequest
 {
@@ -22,7 +24,7 @@ class StoreUser extends FormRequest
     {
         return [
            'name' => ['required','max:25'],
-           'email' => ['required','email','unique:users,email'],
+           'email' => ['required','email','unique:users,email', new EmailDomainRule],
            'password' => ['required','min:8'],
            'phone' => ['required','max:11'],
            'address' => ['required','max:30'],

@@ -9,6 +9,8 @@ use Validator;
 use App\Models\Category;
 use App\Http\Resources\CategoryResource;
 use Intervention\Image\Facades\Image;
+use App\Models\Photos;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
@@ -29,16 +31,23 @@ class CategoryController extends Controller
         $validatedData = $request->validated();
         if($validatedData){
 
-        $image = $request->file('img_url');
-
-        $make_name = hexdec(uniqid()).'.'.$image->getClientOriginalExtension();
-        Image::make($image)->resize(576,479)->save('upload/CategoryImage/'.$make_name);
-        $uploadPath = 'upload/CategoryImage/'.$make_name;
-
             $category = Category::create([
                 'category_name' => $request->category_name,
-                'image' => $uploadPath
             ]);
+
+            $images = $request->file('img_url');
+
+            
+                $make_name = hexdec(uniqid()) . '.' . $images->getClientOriginalExtension();
+                $image = Image::make($images)->resize(400, 400);
+                $path = 'public/CategoryImage/' . $make_name; 
+                Storage::put($path, (string) $image->encode());
+            
+                Photos::create([
+                    'imageable_id' => $category->id,
+                    'imageable_type' => Category::class,
+                    'url' => Storage::url($path), 
+                ]);
 
             return response()->json(['success' => 'Category added successfully', 'category' => $category], 200);
         }else{
@@ -62,37 +71,52 @@ public function show(string $id)
     /**
      * Update the specified resource in storage.
      */
-   public function update(CategoryRequest $request, string $id)
-{
-    $validatedData = $request->validated();
-    
-        if($validatedData){
-
+    public function update(CategoryRequest $request, string $id)
+    {
+        $validatedData = $request->validated();
+        
+        if ($validatedData) {
             $Category = Category::find($id);
-            if(!$Category){
+            if (!$Category) {
                 return response()->json(['errors' => 'Category not found'], 404);
+            }
+            
+            $CategoryImages = Photos::where('imageable_id', $id)->where('imageable_type', Category::class)->get();
+            
+            if ($CategoryImages->count() > 0) {
+                foreach ($CategoryImages as $CategoryImage) {
+                    @unlink(public_path($CategoryImage->url));
+                    $CategoryImage->delete();
                 }
-             
-                @unlink($Category->image);
-
-                $image = $request->file('img_url');
-                $make_name = hexdec(uniqid()).'.'.$image->getClientOriginalExtension();
-                Image::make($image)->resize(576,479)->save('upload/CategoryImage/'.$make_name);
-                $uploadPath = 'upload/CategoryImage/'.$make_name;
-
-                    $update = [
-                    'category_name'=>$request->category_name,
-                    'image'=>$uploadPath
-                    ];
-
-                    $Category->fill($update);
-                    $Category->save();
-                    return response()->json(['success' => 'Category updated successfully','data'=>new CategoryResource($Category)], 200);
-                }else{
-                 return response()->json(['errors' => 'Validation failed'], 401);
-                }
+            }
     
-}
+            $images = $request->file('img_url');
+            if ($images) {
+                $make_name = hexdec(uniqid()) . '.' . $images->getClientOriginalExtension();
+                $image = Image::make($images)->resize(400, 400);
+                $path = 'public/CategoryImage/' . $make_name; 
+                Storage::put($path, (string) $image->encode());
+    
+                Photos::create([
+                    'imageable_id' => $Category->id,
+                    'imageable_type' => Category::class,
+                    'url' => Storage::url($path), 
+                ]);
+            }
+    
+            $update = [
+                'category_name' => $request->category_name,
+            ];
+    
+            $Category->fill($update);
+            $Category->save();
+    
+            return response()->json(['success' => 'Category updated successfully', 'data' => new CategoryResource($Category)], 200);
+        } else {
+            return response()->json(['errors' => 'Validation failed'], 401);
+        }
+    }
+    
     /**
      * Remove the specified resource from storage.
      */

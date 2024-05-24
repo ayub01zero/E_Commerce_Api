@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use App\Rules\EmailDomainRule;
 
 class LoginUser extends FormRequest
 {
@@ -22,7 +24,7 @@ class LoginUser extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required','email'],
+            'email' => ['required', 'email', new EmailDomainRule],
             'password' => ['required'],
          ];
     }

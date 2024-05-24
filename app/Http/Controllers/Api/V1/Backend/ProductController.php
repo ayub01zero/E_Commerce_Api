@@ -12,7 +12,8 @@ use Carbon\Carbon;
 use Intervention\Image\Facades\Image;
 use Spatie\Ray\Ray;
 use Cache;
-
+use Illuminate\Support\Facades\Storage;
+use App\Models\Photos;
 class ProductController extends Controller
 {
     /**
@@ -60,20 +61,18 @@ class ProductController extends Controller
 
         $images = $request->file('images');
 
-        foreach($images as $img){
-
-        $make_name = hexdec(uniqid()).'.'.$img->getClientOriginalExtension();
-        Image::make($img)->resize(400,400)->save('upload/ProductImage/'.$make_name);
-        $uploadPath = 'upload/ProductImage/'.$make_name;
-
-        ProductImage::insert([
-
-            'product_id' => $product->id,
-            'url' => $uploadPath,
-            'created_at' => Carbon::now(), 
-
-        ]); 
-        } 
+        foreach ($images as $img) {
+            $make_name = hexdec(uniqid()) . '.' . $img->getClientOriginalExtension();
+            $image = Image::make($img)->resize(400, 400);
+            $path = 'public/ProductImage/' . $make_name; 
+            Storage::put($path, (string) $image->encode());
+        
+            Photos::create([
+                'imageable_id' => $product->id,
+                'imageable_type' => Products::class,
+                'url' => Storage::url($path), 
+            ]);
+        }
 
         return response()->json([
             'success' => 'Product added successfully',
@@ -143,7 +142,7 @@ class ProductController extends Controller
         'images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
     ]);
 
-    $productImages = ProductImage::where('product_id', $id)->get();
+    $productImages = Photos::where('imageable_id', $id)->get();
     $Product = Products::find($id);
 
     if ($productImages->isEmpty()) {
@@ -155,15 +154,17 @@ class ProductController extends Controller
         }
 
         $images = $request->file('images');
-        foreach($images as $img){
 
-            $make_name = hexdec(uniqid()).'.'.$img->getClientOriginalExtension();
-            Image::make($img)->resize(400,400)->save('upload/ProductImage/'.$make_name);
-            $uploadPath = 'upload/ProductImage/'.$make_name;
-
-            ProductImage::create([
-                'product_id' => $Product->id,
-                'url' => $uploadPath,
+        foreach ($images as $img) {
+            $make_name = hexdec(uniqid()) . '.' . $img->getClientOriginalExtension();
+            $image = Image::make($img)->resize(400, 400);
+            $path = 'public/ProductImage/' . $make_name; 
+            Storage::put($path, (string) $image->encode());
+        
+            Photos::create([
+                'imageable_id' => $Product->id,
+                'imageable_type' => Products::class,
+                'url' => Storage::url($path), 
             ]);
         }
         return response()->json([

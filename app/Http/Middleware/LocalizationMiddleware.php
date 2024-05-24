@@ -16,10 +16,12 @@ class LocalizationMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $locale = $request->header('Accept-Language');
-        if ($locale && array_key_exists($locale, config('app.available_locales'))) {
-            App::setLocale($locale);
-        }
+
+        //disable localization for now
+        // $locale = $request->header('Accept-Language');
+        // if ($locale && array_key_exists($locale, config('app.available_locales'))) {
+        //     App::setLocale($locale);
+        // }
         return $next($request);
     }
 }

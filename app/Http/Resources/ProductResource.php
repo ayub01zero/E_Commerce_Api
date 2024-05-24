@@ -34,7 +34,7 @@ class ProductResource extends JsonResource
                 'new_products' => $this->new_products,
                 'discount_products' => $this->discount_products,
                 'status' => $this->status,
-                'Images' => ProductImageResource::collection($this->images),
+                'Images' => PhotoResource::collection($this->images),
             ],
         ];
     }

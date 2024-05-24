@@ -7,10 +7,12 @@ use Illuminate\Http\Request;
 use App\Models\{Favorite,Products};
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\FavoriteResource;
+use App\traits\apiResponse;
 
 
 class FavoriteController extends Controller
 {
+    use apiResponse;
 
     public function index()
     {
@@ -27,21 +29,21 @@ class FavoriteController extends Controller
         $product = Products::find($productId);
     
         if (!$product) {
-            return response()->json(["error" => "Product not found."], 404);
+            return $this->errorResponse('Product not found', 404);
         }
     
         $isAlreadyFavorite = $user->favorites()->where('product_id', $productId)->exists();
     
         if ($isAlreadyFavorite) {
-            return response()->json(["error" => "Product already in favorites."], 400);
+            return $this->errorResponse('Product already in favorites', 400);
         }
     
         $favoriteItem = $user->favorites()->create(['product_id' => $productId]);
-    
-        return response()->json([
-            "message" => "Product added to favorites",
-            "favorite" => new FavoriteResource($favoriteItem)
-        ], 201);
+        return $this->successResponse(
+            new FavoriteResource($favoriteItem),
+            'Product added to favorites',
+            201
+        );
     }
     
     public function destroy(string $id)
@@ -50,16 +52,15 @@ class FavoriteController extends Controller
         $favoriteItem = Favorite::find($id);
     
         if (!$favoriteItem) {
-            return response()->json(["error" => "Favorite not found."], 404);
+            return $this->errorResponse('Favorite not found', 404);
         }
     
         if ($favoriteItem->user_id !== $user->id) {
-            return response()->json(["error" => "Unauthorized to remove this favorite item."], 403);
+            return $this->errorResponse('Unauthorized to remove this favorite item.', 403);
         }
     
         $favoriteItem->delete();
-    
-        return response()->json(["message" => "Item removed from favorites"], 200);
+        return $this->errorResponse('Favorite removed successfully', 200);
     }
     
     

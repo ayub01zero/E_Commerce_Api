@@ -12,8 +12,12 @@ class Category extends Model
     protected $hidden = [
         'created_at',
         'updated_at',
-    ];
+    ];  
 
+    public function images()
+    {
+        return $this->morphMany(Photos::class, 'imageable');
+    }
     public function scopeOfName($query, $name)
     {
         if ($name) {

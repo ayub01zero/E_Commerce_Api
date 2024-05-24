@@ -15,7 +15,7 @@ class Products extends Model
     }
     public function images()
     {
-    return $this->hasMany(ProductImage::class, 'product_id');
+     return $this->morphMany(Photos::class, 'imageable');
     }
     protected $hidden = [
         'created_at',
