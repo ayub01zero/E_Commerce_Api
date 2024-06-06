@@ -18,8 +18,8 @@ class FavoriteResource extends JsonResource
             'id' => (string)$this->id,
             'Type' => 'Favorites',
             'attributes' => [
-               'product_id' => $this->product_id,
-               'user_id' => $this->user_id, 
+                'product_id' => $this->product_id,
+                'user_id' => $this->user_id,
             ],
         ];
     }

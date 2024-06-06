@@ -12,9 +12,13 @@ use Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\UserResource;
+use App\Http\Filters\V1\UserFilter;
+use App\Http\Controllers\Api\V1\ApiController;
+use App\Policies\UserPolicy;
 
-class UserController extends Controller
+class UserController extends ApiController
 {
+    protected $policyClass = UserPolicy::class;
     public function UserProfileUpdate(UserUpdateRequest $request)
     {
         $user = auth()->user();
@@ -56,14 +60,19 @@ public function userPasswordUpdate(UpdatePasswordRequest $request)
     }
 
 
-    public function index()
-    {
-        $this->authorize('isAdmin', User::class);
-        // $users = User::OfRole($request->role)->get(); 
-        $users = User::all(); // Retrieve all users
-        return UserResource::collection($users);
-    }
-    
+    public function index(UserFilter $filters)
+{
 
+    $this->isAble('ViewUsers', User::class);
+
+    if ($this->include('orders')) {
+        return UserResource::collection(User::with('orders')->filter($filters)->paginate());
     }
+    return UserResource::collection(User::filter($filters)->paginate());
+
+   
+}
+
+
+}
 

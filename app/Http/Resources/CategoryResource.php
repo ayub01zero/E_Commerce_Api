@@ -19,7 +19,7 @@ class CategoryResource extends JsonResource
             'Type' => 'Category',
             'attributes' => [
                 'name' => $this->category_name,
-                'Images' => PhotoResource::collection($this->images),
+                'Images' => PhotoResource::collection($this->whenLoaded('images')),
             ],
         ];
     }

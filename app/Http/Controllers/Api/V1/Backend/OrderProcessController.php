@@ -7,18 +7,20 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Http\Resources\OrderResource;
 use Illuminate\Http\Response;
-
-class OrderProcessController extends Controller
+use App\Http\Filters\V1\OrderFilter;
+use App\Http\Controllers\Api\V1\ApiController;
+class OrderProcessController extends ApiController
 {
     
-public function GetAllOrders(Request $request) {
-    $orders = Order::query()
-    ->status($request->status)
-    ->userId($request->user_id)
-    ->with('user','orderItems')
-    ->get();
-    return OrderResource::collection($orders);
-}
+    public function GetAllOrders(OrderFilter $filters) {
+        if ($this->include('user')) {
+            return OrderResource::collection(Order::with('user')->filter($filters)->paginate());
+        }elseif ($this->include('orderItems')) {
+            return OrderResource::collection(Order::with('orderItems')->filter($filters)->paginate());
+        }
+        return OrderResource::collection(Order::filter($filters)->paginate());
+    }
+    
 
 public function statusOrderProcess($orderId)
 {

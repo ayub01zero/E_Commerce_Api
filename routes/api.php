@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\AuthenticationController;
 use App\Http\Controllers\Api\V1\{
@@ -13,9 +13,7 @@ Backend\OrderProcessController,
 Frontend\HomeController,
 Frontend\FavoriteController,
 Frontend\CheckoutController,
-Frontend\ReviewController,
-Frontend\OrdersController,
-};
+Frontend\ReviewController,};
 
 // /
 // |--------------------------------------------------------------------------
@@ -34,13 +32,13 @@ Route::prefix('/Auth')->controller(AuthenticationController::class)->group(funct
     Route::post('/user/unban' , 'unbanUser');
 });
 // Get Products and categories api
-Route::get('/home/page', [HomeController::class, 'getAllPC']);
+Route::get('/home/page', [HomeController::class, 'getAllPC'])->name('home.page');
 Route::get('/home/products', [HomeController::class, 'HomeProduct']);
 Route::get('/home/categories', [HomeController::class, 'HomeCategory']);
 Route::get('/home/filter', [HomeController::class, 'productFilter']);
 });
 
-//Backend Routes
+//Backend Rout  es
 Route::group(['middleware' => ['json.header','auth:sanctum','Admin']], function () {
 Route::prefix('/v1')->group(function(){
         //API Routes
@@ -80,7 +78,7 @@ Route::get('/logout/{id}', [AuthenticationController::class, 'logout']);
     Route::post('/Update/user' , 'UserProfileUpdate');
     Route::post('/Update/password' , 'userPasswordUpdate');
     Route::get('/Update/role/{user}' , 'AdminRoleUpdate');
-    Route::get('/all/users' , 'index');
+    Route::get('/all/users' , 'index')->name('user.index');
 });
 });
 

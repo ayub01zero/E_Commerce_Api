@@ -15,12 +15,13 @@ use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
-use App\Jobs\SendWelcomeEmail; 
+use App\Jobs\SendWelcomeEmail;
 use App\Helper\helperfunctions;
 use Carbon\Carbon;
 use Ichtrojan\Otp\Otp;
 use App\Notifications\ResetPasswordNotification;
 use App\traits\apiResponse;
+use App\Permissions\V1\Abilities;
 
 
 
@@ -28,7 +29,7 @@ use App\traits\apiResponse;
 class AuthenticationController extends Controller
 {
     use apiResponse;
-   private $otp;
+   protected $otp;
 
    public function __construct()
    {
@@ -37,33 +38,32 @@ class AuthenticationController extends Controller
     public function banUser(Request $request): JsonResponse
     {
         $user = User::find($request->id);
-    
+
         if (!$user) {
         return $this->errorResponse('User not found', 404);
         }
-    
+
         if ($user->isBanned()) {
             return $this->errorResponse('User is already banned', 400);
         }
 
         $user->ban([
             'comment' => 'Enjoy your ban!',
-            'expired_at' => Carbon::now()->addMonth(), 
+            'expired_at' => Carbon::now()->addMonth(),
         ]);
-    
+
         return $this->successResponse('User banned successfully', 200);
-       
+
     }
-    
     public function unbanUser(Request $request): JsonResponse
     {
         $user = User::find($request->id);
-    
+
         if (!$user) {
             return $this->errorResponse('User not found', 404);
-  
+
         }
-    
+
         if ($user->isNotBanned()) {
             return $this->errorResponse('User is not currently banned', 400);
         }
@@ -75,16 +75,18 @@ class AuthenticationController extends Controller
     public function createUser(StoreUser $request): JsonResponse
     {
         try {
-            $validatedData = $request->validated(); 
-            
+            $validatedData = $request->validated();
+
             // Check if the user's email is banned
             $user = User::where('email', $validatedData['email'])->first();
             if ($user && $user->isBanned()) {
 
              return $this->errorResponse('User is banned. Cannot create account.', 403);
-               
+
+            }else if ($user) {
+                return $this->errorResponse('User already exists', 409);
             }
-            
+
             $user = User::create([
                 'name' => $validatedData['name'],
                 'email' => $validatedData['email'],
@@ -92,7 +94,7 @@ class AuthenticationController extends Controller
                 'phone' => $validatedData['phone'],
                 'address' => $validatedData['address'],
             ]);
-    
+
             // fetch the user ip and address and save it to the database
             // helperfunctions::saveIPInformation($request);
             dispatch((new SendWelcomeEmail($user))->delay(now()->addMinutes(1)));
@@ -116,21 +118,24 @@ class AuthenticationController extends Controller
             if ($user && $user->isBanned()) {
 
                 return $this->errorResponse('User is banned. Cannot login.', 403);
-    
+
             }
-    
+
             if (!Auth::attempt($request->only(['email', 'password']))) {
 
                 return $this->errorResponse('Email & Password do not match our records.', 401);
-               
+
             }
-    
-            $user = Auth::user();
-    
+
+            $token = $user->createToken('API TOKEN ' . $user->email,
+            Abilities::getAbilities($user),
+            now()->addMonth())->plainTextToken;
+
+
             return response()->json([
                 'status' => true,
                 'message' => 'User Logged In Successfully',
-                'token' => $user->createToken('API TOKEN')->plainTextToken,
+                'token' =>$token,
                 'user' => $user,
             ], 200);
         } catch (\Throwable $th) {
@@ -144,12 +149,12 @@ class AuthenticationController extends Controller
     $input  = $request->only('email');
     $user = User::where('email', $input)->first();
         $user->notify(new ResetPasswordNotification());
-        return $this->successResponse('We have e-mailed your password reset link!', 200);
+        return $this->successResponse('We have e-mailed your password reset link!');
     }
 
     public function resetPassword(ResetPass $request)
     {
-   
+
        $otp2 =  $this->otp->validate($request->email,$request->otp);
        if ( ! $otp2->status) {
         return $this->errorResponse('Invalid OTP', 401);
@@ -158,8 +163,8 @@ class AuthenticationController extends Controller
        $user = User::where('email', $request->email)->first();
        $user->update(['password' => Hash::make($request->password)]);
        $user->tokens()->delete();
-       return $this->successResponse('Password Reset Successfully', 200);
-     
+       return $this->successResponse('Password Reset Successfully');
+
     }
 
     public function logout(Request $request, $userId): JsonResponse
@@ -167,21 +172,21 @@ class AuthenticationController extends Controller
         if (!Auth::check()) {
             return $this->errorResponse('User not authenticated', 401);
         }
-    
+
         $user = User::find($userId);
         if (!$user) {
             return $this->errorResponse('User not found', 404);
         }
-    
+
         return $user->tokens()->delete()
             ? $this->successResponse('Logout Successful', 200)
             : $this->errorResponse('Logout Failed', 500);
     }
-    
+
 }
 
 
 
 
 
-   
+

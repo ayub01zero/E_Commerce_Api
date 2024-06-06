@@ -14,6 +14,9 @@ class Category extends Model
         'updated_at',
     ];  
 
+
+
+ 
     public function images()
     {
         return $this->morphMany(Photos::class, 'imageable');

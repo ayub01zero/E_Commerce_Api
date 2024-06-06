@@ -11,7 +11,7 @@ use App\Models\ProductImage;
 use Carbon\Carbon;
 use Intervention\Image\Facades\Image;
 use Spatie\Ray\Ray;
-use Cache;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Photos;
 class ProductController extends Controller
@@ -21,7 +21,7 @@ class ProductController extends Controller
      */
    public function index()
 {
-    return ProductResource::collection(cache::remember('products', 60*60*24 , function(){
+    return ProductResource::collection(Cache::remember('products', 60*60*24 , function(){
         return Products::with('images')->get();
     }));
 }
@@ -61,7 +61,7 @@ class ProductController extends Controller
 
         $images = $request->file('images');
 
-        foreach ($images as $img) {
+        foreach ($images as $img){
             $make_name = hexdec(uniqid()) . '.' . $img->getClientOriginalExtension();
             $image = Image::make($img)->resize(400, 400);
             $path = 'public/ProductImage/' . $make_name; 
@@ -77,7 +77,7 @@ class ProductController extends Controller
         return response()->json([
             'success' => 'Product added successfully',
             'product' => $product
-        ], 200);
+        ], 201);
     }
 
     return response()->json(['errors' => 'Validation failed'], 422);
@@ -151,7 +151,7 @@ class ProductController extends Controller
         foreach ($productImages as $image) {
             @unlink(public_path($image->url));
             $image->delete(); 
-        }
+        } 
 
         $images = $request->file('images');
 
@@ -196,7 +196,7 @@ class ProductController extends Controller
     return response()->json([
         'status' => true,
         'message' => 'Product deleted successfully!',
-    ], 200);
+    ], 204);
 }
 
 }

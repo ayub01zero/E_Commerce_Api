@@ -14,6 +14,14 @@ class CategoryRequest extends FormRequest
         return true;
     }
 
+
+    // public function mapattributes(): array
+    // {
+    //     return [
+    //         'category_name' => 'category name',
+
+    //     ];
+    // }   
     /**
      * Get the validation rules that apply to the request.
      *

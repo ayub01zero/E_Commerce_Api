@@ -11,14 +11,19 @@ use App\Http\Resources\CategoryResource;
 use Intervention\Image\Facades\Image;
 use App\Models\Photos;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Api\V1\ApiController;
 
-class CategoryController extends Controller
+class CategoryController extends ApiController
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
+        if ($this->include('images')) {
+            $categories = Category::with('images')->get();
+            return CategoryResource::collection($categories);
+        }
      $categories = Category::all();
      return CategoryResource::collection($categories);     
     }
@@ -65,6 +70,9 @@ public function show(string $id)
     if (!$category) {
     return response()->json(['errors' => 'category not found'], 404);
     }
+    if ($this->include('images')) {
+        $category->load('images');
+    }
     return new CategoryResource($category);
 }
 
@@ -73,6 +81,8 @@ public function show(string $id)
      */
     public function update(CategoryRequest $request, string $id)
     {
+
+        $request->mapattributes();
         $validatedData = $request->validated();
         
         if ($validatedData) {

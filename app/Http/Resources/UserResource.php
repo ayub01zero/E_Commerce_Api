@@ -23,8 +23,16 @@ class UserResource extends JsonResource
             'address' => $this->address,
             'points' => $this->points,
             'status' => $this->status,
+            $this->mergewhen( $request->routeIs('user.index'),[
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+        ]),
+        'orders' => OrderResource::collection($this->whenLoaded('orders')),
+
+            'links' => [
+                'self' => route('user.index', ['user' => $this->id]),
+            ],
+         
         ];
     }
 }

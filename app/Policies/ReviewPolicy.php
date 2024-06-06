@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Review;
 use App\Models\User;
+use App\Permissions\V1\Abilities;
 use Illuminate\Auth\Access\Response;
 
 class ReviewPolicy
@@ -13,7 +14,11 @@ class ReviewPolicy
      */
     public function viewAny(User $user): bool
     {
-       return $user->role == 'admin'; 
+      if($user->tokenCan(Abilities::ViewReviews))
+      {
+          return true;
+      }
+          return false;
     }
 
     /**
@@ -21,49 +26,28 @@ class ReviewPolicy
      */
     public function view(User $user, Review $review): bool
     {
-       return $user->role == 'admin' || $user->id === $review->user_id;
+        if ($user->tokenCan(Abilities::ViewReviews)) {
+            return true;
+        } else if ($user->tokenCan(Abilities::ViewOwnReview)) {
+            return $user->id === $review->user_id;
+        }
+    
+        return false;
     }
+    
 
     /**
      * Determine whether the user can create models.
      */
     public function create(User $user): bool
     {
-       return $user->role == 'user';
+        if($user->tokenCan(Abilities::CreateReview))
+        {
+            return $user->role == 'user';
+        }
+        return false;
     }
 
-    // /**
-    //  * Determine whether the user can update the model.
-    //  */
-    // public function update(User $user, Review $review): bool
-    // {
-    //         //by ayo
-    // }
-
-    // /**
-    //  * Determine whether the user can delete the model.
-    //  */
-    // public function delete(User $user, Review $review): bool
-    // {
-
-    //         //by ayo
-    // }
-
-    // /**
-    //  * Determine whether the user can restore the model.
-    //  */
-    // public function restore(User $user, Review $review): bool
-    // {
-        
-    //     //by ayo
-    // }
-
-    // /**
-    //  * Determine whether the user can permanently delete the model.
-    //  */
-    // public function forceDelete(User $user, Review $review): bool
-    // {
-        
-    //         //by ayo
-    // }
+   
 }
+

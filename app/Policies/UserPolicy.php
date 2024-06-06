@@ -4,15 +4,19 @@ namespace App\Policies;
 
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
+use App\Permissions\V1\Abilities;
 
 
 
 class UserPolicy 
 {
-    public function isAdmin(User $currentUser)
+    public function ViewUsers(User $currentUser): bool
     {
-        return $currentUser->role === 'admin'
-        ? Response::allow()
-        : Response::deny('You are not permission to preform this action.');
+        if($currentUser->tokenCan(Abilities::Allusers))
+        {
+           return true;
+        }
+        return false;
     }
+
 }

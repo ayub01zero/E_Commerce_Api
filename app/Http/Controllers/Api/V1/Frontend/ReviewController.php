@@ -9,11 +9,15 @@ use App\Models\Review;
 use App\Http\Resources\ReviewResource;
 use App\Http\Requests\ReviewRequest;
 use App\traits\apiResponse;
+use App\Http\Controllers\Api\V1\ApiController;
+use App\Policies\ReviewPolicy;
 
 
 class ReviewController extends Controller
 {
 
+    
+    // protected $policyClass = ReviewPolicy::class;
     use apiResponse;
     public function __construct()
     {
@@ -21,9 +25,9 @@ class ReviewController extends Controller
     }
 
     public function index()
-    {
-        $reviews = Review::latest()->get();
-        return $this->successResponse(ReviewResource::collection($reviews));
+    { 
+        
+        return $this->successResponse(ReviewResource::collection(Review::latest()->get()));
       
     }
 

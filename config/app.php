@@ -182,6 +182,8 @@ return [
         Intervention\Image\ImageServiceProvider::class,
         Spatie\LaravelRay\RayServiceProvider::class,
         Cog\Laravel\Ban\Providers\BanServiceProvider::class,
+        Illuminate\Hashing\HashServiceProvider::class,
+
     ])->toArray(),
 
     /*

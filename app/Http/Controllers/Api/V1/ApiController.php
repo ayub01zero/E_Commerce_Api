@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 
 class ApiController extends Controller
 {
+
+    protected $policyClass;
     public function include(string $relationship) : bool
     {
         $param = request()->get('include');
@@ -16,5 +18,11 @@ class ApiController extends Controller
         $includeValues = explode(',',strtolower($param));
         return in_array(strtolower($relationship), $includeValues);
 
+    }
+      
+
+    public function isAble($ability, $model)
+    {
+       return $this->authorize($ability, [$model , $this->policyClass]);
     }
 }

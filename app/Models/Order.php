@@ -22,10 +22,10 @@ class Order extends Model
     return $this->belongsTo(User::class);
 }
 
-// public function scopeFilter(Builder $query, QueryFilter $filters)
-// {
-//     return $filters->apply($query);
-// }
+public function scopefilter(Builder $query, QueryFilter $filters)
+{
+    return $filters->apply($query);
+}
 
 
   public function scopeStatus($query, $status)

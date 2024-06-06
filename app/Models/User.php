@@ -9,6 +9,9 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Cog\Contracts\Ban\Bannable as BannableInterface;
 use Cog\Laravel\Ban\Traits\Bannable;
+use App\Http\Filters\V1\QueryFilter;
+use Illuminate\Database\Eloquent\Builder;
+
 
 
 
@@ -51,6 +54,11 @@ class User extends Authenticatable implements BannableInterface
         'password' => 'hashed',
     ];
 
+    public function scopefilter(Builder $query, QueryFilter $filters)
+{
+    return $filters->apply($query);
+}
+
     public function scopeOfRole($query, $role)
     {
         if ($role) {
@@ -66,10 +74,25 @@ class User extends Authenticatable implements BannableInterface
     }
 
 
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+
     public function getRegisteredAttribute()
     {
         return $this->created_at->diffForHumans();
         
     }
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin'; // Adjust this based on your role implementation
+    }
 
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
 }

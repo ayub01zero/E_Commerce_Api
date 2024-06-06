@@ -5,6 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 use Illuminate\Support\Testing\Fakes\Fake;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -24,10 +25,10 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'address' => fake()->address(),
             'phone' => fake()->phoneNumber(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'password' => Hash::make('password'), // Using the Hash facade
             'remember_token' => Str::random(10),
-            'status' => $this->faker->randomElement(['active', 'inactive']),
-            'role' => $this->faker->randomElement(['user', 'admin']),
+            'status' => fake()->randomElement(['active', 'inactive']),
+            'role' => fake()->randomElement(['user', 'admin']),
         ];
     }
 
@@ -39,5 +40,14 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    public function admin()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'role' => 'admin',
+            ];
+        });
     }
 }
