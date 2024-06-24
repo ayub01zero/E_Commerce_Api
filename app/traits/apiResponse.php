@@ -1,10 +1,10 @@
 <?php
 
-namespace App\traits;
+namespace App\Traits;
 
-trait apiResponse
+trait ApiResponse
 {
-    protected function successResponse($data = [] , $message = null, $code = 200)
+    protected function successResponse($data = [], $message = null, $code = 200)
     {
         return response()->json([
             'data' => $data,
@@ -22,10 +22,11 @@ trait apiResponse
                 'status' => false
             ], $code);
         }
+        
         return response()->json([
-            'message' => $errors,
-            
-        ]);
+            'errors' => $errors,
+            'status' => false
+        ], $code);
     }
 
     protected function notAuthorized($message)
@@ -34,7 +35,6 @@ trait apiResponse
             'message' => $message,
             'status' => 401,
             'source' => '',
-        ]);
+        ], 401);
     }
 }
-

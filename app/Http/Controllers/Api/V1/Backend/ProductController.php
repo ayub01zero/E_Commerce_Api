@@ -19,12 +19,19 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-   public function index()
-{
-    return ProductResource::collection(Cache::remember('products', 60*60*24 , function(){
-        return Products::with('images')->get();
-    }));
-}
+    public function index(Request $request)
+    {
+        $products = Cache::remember("products_" . $request->input('search'), 86400, function() use ($request) {
+            return Products::with('images')
+                           ->ofSearch($request->input('search'))
+                           ->get();
+        });
+    
+        return ProductResource::collection($products);
+    }
+    
+    
+    
 
 
     /**

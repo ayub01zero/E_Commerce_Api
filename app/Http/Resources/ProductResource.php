@@ -18,7 +18,6 @@ class ProductResource extends JsonResource
             'Id' => (string)$this->id,
             'Type' => 'Products',
             'attributes' => [
-                'Category_id' => $this->category_id,
                 'product_name' => $this->product_name,
                 'product_code' => $this->product_code,
                 'product_qty' => $this->product_qty,
@@ -34,7 +33,12 @@ class ProductResource extends JsonResource
                 'new_products' => $this->new_products,
                 'discount_products' => $this->discount_products,
                 'status' => $this->status,
-                'Images' => PhotoResource::collection($this->images),
+                [
+                    'realtionships' => [
+                        'Category' => new CategoryResource($this->category),
+                        'Images' => PhotoResource::collection($this->images),
+                    ],
+                ]
             ],
         ];
     }

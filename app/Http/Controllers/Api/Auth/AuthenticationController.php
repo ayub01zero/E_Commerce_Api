@@ -4,17 +4,12 @@ namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\{LoginUser,ResetPass,StoreUser};
-use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\UserDetails;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Validator;
 use App\Jobs\SendWelcomeEmail;
 use App\Helper\helperfunctions;
 use Carbon\Carbon;
@@ -30,6 +25,7 @@ class AuthenticationController extends Controller
 {
     use apiResponse;
    protected $otp;
+
 
    public function __construct()
    {
@@ -108,6 +104,7 @@ class AuthenticationController extends Controller
           return $this->errorResponse($th->getMessage(), 500);
         }
     }
+
 
     public function loginUser(LoginUser $request): JsonResponse
     {

@@ -45,6 +45,7 @@ class CategoryController extends ApiController
             
                 $make_name = hexdec(uniqid()) . '.' . $images->getClientOriginalExtension();
                 $image = Image::make($images)->resize(400, 400);
+                
                 $path = 'public/CategoryImage/' . $make_name; 
                 Storage::put($path, (string) $image->encode());
             

@@ -15,9 +15,10 @@ class PhotoResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-           
-            'url' => env('APP_URL').$this->url,
-            'imageable_id' => $this->imageable_id,
+            'image'=>[
+             'url' => $this->url,
+             'imageable_id' => $this->imageable_id,
+            ],
             
         ];    
     }

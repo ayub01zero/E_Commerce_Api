@@ -4,7 +4,7 @@
 
 
 return [
-    'default' => 'local',
+    'default' => 's3',
     'cloud' => 's3',
     'disks' => [
         'local' => [

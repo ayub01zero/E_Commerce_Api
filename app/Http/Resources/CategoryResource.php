@@ -18,7 +18,7 @@ class CategoryResource extends JsonResource
             'Id' => (string) $this->id,
             'Type' => 'Category',
             'attributes' => [
-                'name' => $this->category_name,
+                'name' => $this->Category_name,
                 'Images' => PhotoResource::collection($this->whenLoaded('images')),
             ],
         ];

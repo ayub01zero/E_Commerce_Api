@@ -15,6 +15,33 @@ class Category extends Model
     ];  
 
 
+    // public function scopeFilter($query, array $filters)
+    // {
+    //     $query->when($filters['search']['name'] ?? null, function ($query, $name) {
+    //         $query->whereAny([
+    //             'first_name',
+	// 		   'lastname',			
+    //             'email',
+    //         ],
+    //             'LIKE',
+    //             "%$name%");
+
+    //     })->when($filters['search']['status'] ?? null, function ($query, $status) {
+	// 					$query->where('status', $status);
+	// 		});
+    // }
+
+
+    // use Illuminate\Support\Facades\Request as RequestFacade;
+
+    // public function index()
+    // {
+    //     return UsersResource::collection(User::query()->with('ticket')
+    //      ->filter(RequestFacade::only('search'))
+    //      ->paginate()
+    //      ->withQueryString());
+    // } 
+
 
  
     public function images()
@@ -28,6 +55,6 @@ class Category extends Model
         } else {
             return $query;
         }
-      }
+    }
 
 }

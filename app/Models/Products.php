@@ -4,11 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class Products extends Model
 {
     use HasFactory;
     protected $guarded = [];
+
+    protected static function booted()
+    {
+        static::saved(function () {
+            Cache::forget('posts');
+        });
+    }
     public function category()
     {
     return $this->belongsTo(Category::class);
@@ -31,14 +39,23 @@ class Products extends Model
         return $query;
     }
 
-    public function scopeOfSearch($query, $searchTerm)
+    public function scopeOfSearch($query, string $terms = null)
     {
-        if (!empty($searchTerm)) {
-            return $query->where('product_name', 'LIKE', "%{$searchTerm}%")
-                         ->orWhere('short_des', 'LIKE', "%{$searchTerm}%");
-        }
-        return $query;
+        collect(explode(' ', $terms))->filter()->each(function ($term) use ($query) {
+            $term = '%' . $term . '%';
+
+            $query->where(function ($query) use ($term) {
+                $query->whereAny([
+                    'product_name',
+                    'short_des',
+                ], 'LIKE', $term)
+                    ->orWhereHas('category', function ($query) use ($term) {
+                        $query->where('category_name', 'like', $term);
+                    });
+            });
+        });
     }
+
     
     public function scopeOfPrice($query, $price)
     {
@@ -64,4 +81,20 @@ public static function filterProducts(array $conditions)
 }
 
 
+//  public function scopeOfSearch($query, string $terms = null)
+//     {
+//         collect(explode(' ', $terms))->filter()->each(function ($term) use ($query) {
+//             $term = '%' . $term . '%';
+    
+//             $query->where(function ($query) use ($term) {
+//                 $query->where('product_name', 'like', $term)
+//                     ->orWhere('short_des', 'like', $term)
+//                     ->orWhereHas('category', function ($query) use ($term) {
+//                         $query->where('category_name', 'like', $term);
+//                     });
+//             });
+//         });
+//     }
+
+// }
 }
